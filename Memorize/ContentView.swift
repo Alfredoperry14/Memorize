@@ -8,61 +8,100 @@
 import SwiftUI
 
 struct ContentView: View {
-    let emojis: [String] = ["👻","🎃","🕷️","😈","👻","💀","🕸️","🧙‍♀️","🙀","👹","😱","☠️","🍭"]
-    @State var cardCount: Int  = 4
+    @State var emojis: [String] = ["🤽‍♀️","🏄‍♂️","🚴‍♂️","⛹️","🤽‍♀️","🏄‍♂️","🚴‍♂️","⛹️"]
+    @State var theme: Color = .yellow
+    @State var cardCount = 8
     
     var body: some View {
         VStack{
+            Text("Memorize!")
+                .font(.largeTitle)
+                .bold()
             ScrollView{
-                cards
+                cards(cardCount: $cardCount, theme: $theme, emojis: $emojis)
             }
             Spacer()
-            cardCountAdjusters
+            themeSelector(emojis: $emojis, theme: $theme)
         }
         .padding()
     }
     
-    var cardCountAdjusters: some View{
-        HStack{
-            cardRemover
-            Spacer()
-            cardAdder
-        }
-        .imageScale(.large)
-        .font(.largeTitle)
-    }
-    
-    var cards: some View{
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))])
-        {
-            ForEach(0..<cardCount, id: \.self){ index in
-                CardView(content: emojis[index])
-                    .aspectRatio(2/3, contentMode: .fit)
+    struct cards: View{
+        @Binding var cardCount: Int
+        @Binding var theme: Color
+        @Binding var emojis: [String]
+        var body: some View{
+            
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 85))])
+            {
+                ForEach(0..<cardCount, id: \.self){ index in
+                    CardView(content: emojis[index])
+                        .aspectRatio(2/3, contentMode: .fit)
+                }
             }
+            .foregroundStyle(theme)
         }
-        .foregroundStyle(.orange)
     }
     
-    func cardCountAdjuster(by offset: Int, symbol: String) -> some View {
-        Button(action: {
-            cardCount += offset
-        }, label: {
-            Image(systemName: symbol)
-        })
-        .disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
-    }
-    
-    var cardAdder: some View{
-        return cardCountAdjuster(by: 1, symbol: "rectangle.stack.fill.badge.plus")
-    }
-    
-    var cardRemover: some View{
-        return cardCountAdjuster(by: -1, symbol: "rectangle.stack.fill.badge.minus")
+    struct themeSelector: View{
+        @Binding var emojis: [String]
+        @Binding var theme: Color
+        var body: some View{
+            HStack{
+                Spacer()
+                VStack {
+                    Button(action: {
+                        emojis = ["🏎️","⛵️","🚠","✈️","🏎️","⛵️","🚠","✈️"]
+                        emojis = emojis.shuffled()
+                        theme = .green
+                    },
+                           label: {Image(systemName: "cablecar.fill")
+                    })
+                    .font(.title)
+                    Text("Transportation")
+                        .foregroundStyle(.blue)
+                }
+                
+                Spacer()
+                
+                VStack {
+                    Button(action: {
+                        emojis = ["🤽‍♀️","🏄‍♂️","🚴‍♂️","⛹️","🤽‍♀️","🏄‍♂️","🚴‍♂️","⛹️"]
+                        emojis = emojis.shuffled()
+                        theme = .yellow
+                    },
+                           label: {
+                        Image(systemName: "medal.fill")
+                    })
+                    .font(.title)
+                    Text("Sports")
+                        .foregroundStyle(.blue)
+                }
+                
+                Spacer()
+                
+                VStack {
+                    Button(action: {
+                        emojis = ["☃️","🎄","🎁","❄️","☃️","🎄","🎁","❄️"]
+                        emojis = emojis.shuffled()
+                        theme = .red
+                    },
+                           label: {
+                        Image(systemName: "snow")
+                    })
+                    .font(.title)
+                    Text("Winter")
+                        .foregroundStyle(.blue)
+                }
+                Spacer()
+            }
+            .padding()
+        }
     }
     
     struct CardView: View{
         var content: String
-        @State var isFaceUp: Bool = true
+        @State var isFaceUp: Bool = false
         
         var body: some View{
             ZStack {
